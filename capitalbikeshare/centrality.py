@@ -3,7 +3,6 @@ from datetime import timedelta
 import xml.etree.ElementTree as et
 from scipy.sparse.linalg import eigs
 import numpy as np
-import bottleneck as bn
 
 
 def xml_to_pandas(xml_file):
@@ -61,11 +60,10 @@ grouped = data.groupby(['Start station number', 'End station number']) \
 m, n = grouped.shape
 
 def k_max_indices(v, k=1):
-    #ind = np.argpartition(np.absolute(v), kth=-k, axis=0)[-k:]
-    #print(np.sort(v[ind]))
-    #ind = ind[np.argsort(v[ind], axis=0)[::-1]]
-    #ind = [i[0][0][0] for i in ind]
-    #ind = bn.argpartsort(-np.absolute(v), n=k, axis=0)[:k].flatten().tolist()
+    """
+    Returns the indices of the k largest elements in a numpy array
+    """
+    # sloooow don't really use
     ind = np.argsort(np.absolute(v),axis=0)[-k:].flatten().tolist()[::-1]
     return ind
 
@@ -77,8 +75,6 @@ def eigenvector_centrality(A, num=1):
     """
     w, v = eigs(A, k=1, which='LM')
     ind = k_max_indices(v, num)
-    # print(ind)
-    # print(np.argmax(np.absolute(v)))
     return ind
 
 
@@ -94,8 +90,6 @@ def page_rank(A, p=0.15, num=1):
     C = p*B + (1-p)*A
     w, v = eigs(C, k=1, which='LM')
     ind = k_max_indices(v, num)
-    # print(ind)
-    # print(np.argmax(np.absolute(v)))
     return ind
 
 
@@ -107,9 +101,6 @@ def hits(A, num=1):
     w, a = eigs(Au, k=1, which='LM')
     w, h = eigs(Hu, k=1, which='LM')
     i, j = k_max_indices(a, num), k_max_indices(h, num)
-    # print(i)
-    # print(np.argmax(np.absolute(a)))
-    # print(np.argmax(np.absolute(h)))
     return i, j
 
 
@@ -121,8 +112,6 @@ def degree_centrality(A, num=1):
     max_out.shape = (m, 1)
     in_degree = k_max_indices(max_in, num)
     out_degree = k_max_indices(max_out, num)
-    # print(np.argmax(np.absolute(max_in)))
-    # print(np.argmax(np.absolute(max_out)))
     return in_degree, out_degree
 
 
